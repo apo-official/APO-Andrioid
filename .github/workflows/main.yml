@@ -1,4 +1,4 @@
-name: Build APO Android APK
+name: Build APO Release AAB
 
 on:
   workflow_dispatch:
@@ -25,11 +25,22 @@ jobs:
         with:
           gradle-version: '8.13'
 
-      - name: Build debug APK
-        run: gradle assembleDebug
+      - name: Restore signing key
+        run: echo "${{ secrets.APO_KEYSTORE }}" | base64 --decode > app/apo-release.jks
 
-      - name: Upload APO APK
+      - name: Build signed release AAB
+        env:
+          APO_STORE_PASSWORD: ${{ secrets.APO_KEYSTORE_PASSWORD }}
+          APO_KEY_PASSWORD: ${{ secrets.APO_KEY_PASSWORD }}
+        run: |
+          gradle bundleRelease \
+            -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/app/apo-release.jks" \
+            -Pandroid.injected.signing.store.password="$APO_STORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="apo" \
+            -Pandroid.injected.signing.key.password="$APO_KEY_PASSWORD"
+
+      - name: Upload APO release AAB
         uses: actions/upload-artifact@v4
         with:
-          name: APO-Android-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: APO-Release-AAB
+          path: app/build/outputs/bundle/release/app-release.aab
