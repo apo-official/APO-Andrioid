@@ -3,8 +3,7 @@
         <item name="android:windowSplashScreenBackground">#101723</item>
         <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
         <item name="android:windowSplashScreenIconBackgroundColor">#101723</item>
-        <item name="android:postSplashScreenTheme">@style/Theme.APO</item>
-        <item name="android:navigationBarColor">#101723</item>
+x        <item name="android:navigationBarColor">#101723</item>
         <item name="android:statusBarColor">#101723</item>
     </style>
 </resources>
