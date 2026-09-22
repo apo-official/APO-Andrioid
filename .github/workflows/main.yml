@@ -28,6 +28,12 @@ jobs:
       - name: Restore signing key
         run: echo "${{ secrets.APO_KEYSTORE }}" | base64 --decode > app/apo-release.jks
 
+      - name: Verify signing key
+        env:
+          APO_STORE_PASSWORD: ${{ secrets.APO_KEYSTORE_PASSWORD }}
+        run: |
+          keytool -list             -keystore app/apo-release.jks             -storetype PKCS12             -storepass "$APO_STORE_PASSWORD"             -alias apo-upload
+
       - name: Build signed release AAB
         env:
           APO_STORE_PASSWORD: ${{ secrets.APO_KEYSTORE_PASSWORD }}
@@ -44,3 +50,4 @@ jobs:
         with:
           name: APO-Release-AAB
           path: app/build/outputs/bundle/release/app-release.aab
+
