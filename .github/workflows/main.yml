@@ -37,7 +37,7 @@ jobs:
       - name: Build signed release AAB
         env:
           APO_STORE_PASSWORD: ${{ secrets.APO_KEYSTORE_PASSWORD }}
-          APO_KEY_PASSWORD: ${{ secrets.APO_KEY_PASSWORD }}
+          APO_KEY_PASSWORD: ${{ secrets.APO_KEYSTORE_PASSWORD }}
         run: |
           gradle bundleRelease \
             -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/app/apo-release.jks" \
