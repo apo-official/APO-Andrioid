@@ -36,7 +36,7 @@ jobs:
           gradle bundleRelease \
             -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/app/apo-release.jks" \
             -Pandroid.injected.signing.store.password="$APO_STORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="apo" \
+            -Pandroid.injected.signing.key.alias="apo-upload" \
             -Pandroid.injected.signing.key.password="$APO_KEY_PASSWORD"
 
       - name: Upload APO release AAB
