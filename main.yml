@@ -1,0 +1,62 @@
+name: Build APO Android Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Restore signing key
+        run: echo "${{ secrets.APO_KEYSTORE }}" | base64 --decode > app/apo-release.jks
+
+      - name: Verify signing key
+        env:
+          APO_STORE_PASSWORD: ${{ secrets.APO_KEYSTORE_PASSWORD }}
+        run: |
+          keytool -list \
+            -keystore app/apo-release.jks \
+            -storetype PKCS12 \
+            -storepass "$APO_STORE_PASSWORD" \
+            -alias apo-upload
+
+      - name: Build signed APK and AAB
+        env:
+          APO_STORE_PASSWORD: ${{ secrets.APO_KEYSTORE_PASSWORD }}
+          APO_KEY_PASSWORD: ${{ secrets.APO_KEYSTORE_PASSWORD }}
+        run: |
+          gradle assembleRelease bundleRelease \
+            -Pandroid.injected.signing.store.file="$GITHUB_WORKSPACE/app/apo-release.jks" \
+            -Pandroid.injected.signing.store.password="$APO_STORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="apo-upload" \
+            -Pandroid.injected.signing.key.password="$APO_KEY_PASSWORD"
+
+      - name: Upload APO release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: APO-Release-APK
+          path: app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload APO release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: APO-Release-AAB
+          path: app/build/outputs/bundle/release/app-release.aab
